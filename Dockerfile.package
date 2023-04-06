@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1.5
+
+FROM     alpine:3.17.3 AS build
+
+ENV PATH "/root/.local/bin:/build/.venv/bin:${PATH}"
+RUN      apk add --no-cache bash python3-dev build-base py3-pip libffi-dev
+SHELL    ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
+WORKDIR  /build
+
+RUN      pip3 install --no-cache-dir 'poetry==1.2.0'
+
+COPY     pyproject.toml poetry.toml tarball-exclude ./
+
+RUN      poetry install --only main
+
+RUN      pip freeze | grep -iEo '^([a-z0-9v][a-z0-9_-]+)' > req.txt
+RUN      mkdir -p are_plugin/lib && pip install -r req.txt -t are_plugin/lib && \
+         rm -f req.txt && mkdir /output
+
+COPY     are_plugin ./are_plugin
+
+ENV      ASSERT_VERSION=
+ENV      WITH_VERSION=
+
+COPY    bin/package ./
+CMD     ./package

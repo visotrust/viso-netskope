@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+poetry install
+mkdir -p are_plugin/lib && touch are_plugin/lib/__init__.py
+./.venv/bin/pip freeze | tail -n +2 > req.txt &&
+  ./.venv/bin/pip install -r req.txt -t are_plugin/lib 2>/dev/null &&
+  rm req.txt &&
+  rm -rf are_plugin/lib/*dist-info
