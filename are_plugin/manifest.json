@@ -1,6 +1,6 @@
 {
     "name": "VISOTrustAREPlugin",
-    "id": "are_plugin",
+    "id": "scratch_are_plugin",
     "version": "0.0.1",
     "patch_supported": true,
     "description": "This plugin logs all method calls.",
