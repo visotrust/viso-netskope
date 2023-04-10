@@ -16,4 +16,4 @@ else:
         TargetMappingFields,
         MappingType)
 
-__all__ = 'PluginBase ValidationResult PluginBase TargetMappingFields MappingType'.split()
+__all__ = 'PluginBase ValidationResult PushResult TargetMappingFields MappingType'.split()
