@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import Optional, Mapping, Any, Iterable
 from pydantic import BaseModel
 
 from enum import Enum
 from datetime import datetime
+import logging
 
 class _Result(BaseModel):
     success: bool
@@ -56,3 +57,17 @@ class Application(BaseModel):
     updatedTime: datetime
     firstSeen: datetime
     lastSeen: datetime
+
+
+class PluginBase:
+    def __init___(self, logger=logging):
+        self.logger = logger
+
+    def push(self, apps: Iterable[Application], mapping) -> Optional[PushResult]:
+        return None
+
+    def get_target_fields(self, plugin_id, plugin_params) -> Iterable[TargetMappingFields]:
+        return []
+
+    def validate(self, config: Mapping[str, Any]) -> Optional[ValidationResult]:
+        return None
