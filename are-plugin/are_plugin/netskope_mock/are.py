@@ -30,8 +30,12 @@ class TargetMappingFields(BaseModel):
     value: str
 
 class PluginBase:
-    def __init___(self, logger=logging):
+    ssl_validation = True
+    proxies = ()
+
+    def __init___(self, logger=logging, config=None):
         self.logger = logger
+        self.configuration = config or {}
 
     def push(self, apps: Iterable[Application], mapping) -> Optional[PushResult]:
         return None
