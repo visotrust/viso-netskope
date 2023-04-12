@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from enum import Enum
 import logging
 
-from netskope_model import Application
+from are_plugin.netskope_model import Application
 
 class _Result(BaseModel):
     success: bool
@@ -31,10 +31,10 @@ class TargetMappingFields(BaseModel):
 
 
 class PluginBase:
-    ssl_validation = True
+    ssl_validation = False
     proxies = ()
 
-    def __init___(self, logger=logging, config=None):
+    def __init__(self, logger=logging, config=None):
         self.logger = logger
         self.configuration = config or {}
 

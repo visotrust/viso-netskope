@@ -30,7 +30,7 @@ class Application(BaseModel):
     discoveryDomains: list[str]
     steeringDomains: list[str]
 
-    createdTime: datetime
-    updatedTime: datetime
-    firstSeen: datetime
-    lastSeen: datetime
+    createdTime: datetime = datetime.now()
+    updatedTime: datetime = datetime.now()
+    firstSeen: datetime = datetime.now()
+    lastSeen: datetime = datetime.now()

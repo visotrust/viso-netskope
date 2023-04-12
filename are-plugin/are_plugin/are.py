@@ -9,7 +9,7 @@ if sys.modules.get('netskope'):
         TargetMappingFields,
         MappingType)
 else:
-    from netskope_mock.are import (
+    from are_plugin.netskope_mock.are import (
         PluginBase,
         ValidationResult,
         PushResult,

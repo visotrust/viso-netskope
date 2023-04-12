@@ -39,7 +39,7 @@ class VTPluginARE(PluginBase):
         return session.post(
             url=f'https://{VISOTRUST_HOST}/api/v1/relationships',
             proxies=self.proxy,
-            verify=self.ssl_validation,
+            verify=self.ssl_validation and VISOTRUST_HOST != 'localhost',
             headers={'Authorization': f"Bearer {token}"},
             json=create.json())
 
@@ -54,7 +54,7 @@ class VTPluginARE(PluginBase):
                 domain = app_domain(app)
 
                 create = RelationshipCreateUpdateInput(
-                    xid=djb_hash(vendor),
+                    id=djb_hash(vendor),
                     homepage=f'https://{domain}',
                     name=vendor,
                     businessOwnerEmail=f'admin@{domain}')
