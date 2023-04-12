@@ -29,6 +29,7 @@ class TargetMappingFields(BaseModel):
     type:  MappingType
     value: str
 
+
 class PluginBase:
     ssl_validation = True
     proxies = ()
