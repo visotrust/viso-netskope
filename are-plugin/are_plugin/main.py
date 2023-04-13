@@ -19,13 +19,6 @@ VISOTRUST_HOST = 'localhost'
 VISOTRUST_CONCURRENT = 2**6
 
 
-def djb_hash(s):
-    h = 5381
-    for c in s:
-        h += (h << 5) + ord(c)
-    return h
-
-
 def app_domain(app: Application) -> str:
     try:
         return app.steeringDomains[0]
@@ -54,9 +47,8 @@ class VTPluginARE(PluginBase):
                 domain = app_domain(app)
 
                 create = RelationshipCreateUpdateInput(
-                    id=djb_hash(vendor),
-                    homepage=f'https://{domain}',
                     name=vendor,
+                    homepage=f'https://{domain}',
                     businessOwnerEmail=f'admin@{domain}')
 
                 future = self.post(session, self.configuration['token'], create)

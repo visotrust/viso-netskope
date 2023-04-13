@@ -19,6 +19,15 @@ will be needed to be updated whenever the webapp API changes.  It is generated l
 $ datamodel-codegen --input openapi.json --output client/model.py
 ```
 
+### Pre-processing of openapi.json
+
+Note that we're currently making the `RelationshipCreateUpdateInput.id` field
+optional via something like:
+
+``` sh
+jq 'del(.components.schemas.RelationshipCreateUpdateInput.required[] | select(. == "id"))'
+```
+
 ### For Posterity
 
 In case we decide to use an entirely generated OpenAPI client, here is how to manipulate
