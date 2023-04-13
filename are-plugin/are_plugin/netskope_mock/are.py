@@ -32,7 +32,7 @@ class TargetMappingFields(BaseModel):
 
 class PluginBase:
     ssl_validation = False
-    proxies = ()
+    proxy = ()
 
     def __init__(self, logger=logging, config=None):
         self.logger = logger
