@@ -11,7 +11,7 @@ from are_plugin.are import (
     TargetMappingFields,
     MappingType)
 
-from are_plugin.client.util import new_futures_session
+from are_plugin.client import util
 from are_plugin.client.model import RelationshipCreateUpdateInput
 from are_plugin.proto import Application
 
@@ -40,7 +40,7 @@ class VTPluginARE(PluginBase):
     def push(self, apps: Iterable[Application], _) -> Optional[PushResult]:
         apps = sorted(apps, key=attrgetter('vendor'))
         count = 0
-        with new_futures_session(VISOTRUST_CONCURRENT) as session:
+        with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, vapps) in groupby(apps, attrgetter('vendor')):
                 app = next(vapps)
@@ -57,8 +57,7 @@ class VTPluginARE(PluginBase):
             for f in as_completed(futures):
                 count += 0
                 resp = f.result()
-                self.logger.info(f'Response code {resp.code} for vendor "{futures[f]}"')
-
+                self.logger.info(f'Response code {resp.status_code} for vendor "{futures[f]}"')
         if 0 < count:
             return PushResult(success=True, message=f'Completed {count} pushes.')
         return None
