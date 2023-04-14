@@ -48,8 +48,8 @@ def test_http(fs_mock):
     VTPluginARE(config={'token': string.ascii_lowercase}).push(
         [app], None)
 
-    args = post.call_args.kwargs
 
-    assert args['url'].endswith('/api/v1/relationships')
+    assert post.call_args.args[0].endswith('/api/v1/relationships')
+    args = post.call_args.kwargs
     assert args['headers']['Authorization'] == f'Bearer {string.ascii_lowercase}'
     assert app.vendor in args['json']
