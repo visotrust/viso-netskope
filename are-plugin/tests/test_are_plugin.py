@@ -1,4 +1,4 @@
-import string
+import string, json
 from unittest.mock import patch
 from pydantic import BaseModel
 from concurrent.futures import Future
@@ -34,7 +34,8 @@ def test_token():
             tokens.append(token)
             return fut(Response())
 
-    P(config={'token': token}).push([app], None)
+    P(config={'token': token,
+              'email': 'admin@visotrust.com'}).push([app], None)
     assert tokens == [token]
 
 
@@ -45,11 +46,16 @@ def test_http(fs_mock):
     post = fs_mock.return_value.__enter__.return_value.post
     post.return_value = fut(resp)
 
-    VTPluginARE(config={'token': string.ascii_lowercase}).push(
+    config = {'token': string.ascii_lowercase,
+              'email': 'admin@visotrust.com',
+              'url':   'http://localhost'}
+    VTPluginARE(config=config).push(
         [app], None)
 
-    args = post.call_args.kwargs
 
-    assert args['url'].endswith('/api/v1/relationships')
+    assert post.call_args.args[0] == f'{config["url"]}/api/v1/relationships'
+    args = post.call_args.kwargs
     assert args['headers']['Authorization'] == f'Bearer {string.ascii_lowercase}'
-    assert app.vendor in args['json']
+    j = json.loads(args['data'])
+    assert app.vendor == j['name']
+    assert config['email'] == j['businessOwnerEmail']

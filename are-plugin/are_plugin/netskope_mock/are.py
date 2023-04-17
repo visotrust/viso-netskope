@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from enum import Enum
 import logging
 
-from are_plugin.netskope_model import Application
+from ..netskope_model import Application
 
 class _Result(BaseModel):
     success: bool
