@@ -15,16 +15,13 @@ from .are import (
     ValidationResult,
     PushResult,
     TargetMappingFields,
-    MappingType,
-    add_user_agent)
+    MappingType)
 
 from .client import util
 from .client.model import RelationshipCreateUpdateInput
 from .proto import Application
 
-VISOTRUST_URL = 'http://localhost:8080'
 VISOTRUST_CONCURRENT = 2**6
-
 
 def app_domain(app: Application) -> str:
     try:
@@ -37,47 +34,54 @@ def app_domain(app: Application) -> str:
 
 
 class VTPluginARE(PluginBase):
-    @property
-    def request_args(self):
+    def request_args(self, config):
         args = {}
         if sys.modules.get('netskope'):
             args.update(
                 proxies=self.proxy,
-                verify=self.ssl_validation)
+                verify=self.ssl_validation and config['url'].startswith('https'))
         return args
+
 
     def post(self, session: FuturesSession, token: str, create: RelationshipCreateUpdateInput) -> Future:
         return session.post(
-            f'{VISOTRUST_URL}/api/v1/relationships',
-            headers={'Authorization': f"Bearer {token}"},
-            json=create.json(),
-            **self.request_args)
+            f"{self.configuration['url']}/api/v1/relationships",
+            headers={'Authorization': f"Bearer {token}",
+                     'Content-Type': 'application/json'},
+            data=create.json(),
+            **self.request_args(self.configuration))
 
 
-    def push(self, apps: Iterable[Application], _) -> Optional[PushResult]:
+    def push(self, apps: Iterable[Application], _) -> PushResult:
         apps = sorted(apps, key=attrgetter('vendor'))
-        count = 0
+        vendors = 0
+        pushes = 0
         with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, vapps) in groupby(apps, attrgetter('vendor')):
+                vendors += 1
                 app = next(vapps)
                 domain = app_domain(app)
 
                 create = RelationshipCreateUpdateInput(
                     name=vendor,
                     homepage=f'https://{domain}',
-                    businessOwnerEmail=f'admin@{domain}')
+                    dataTypes=[],
+                    contextTypes=[],
+                    businessOwnerEmail=self.configuration["email"])
 
+                self.logger.info(f'Request JSON: {create.json()}')
                 future = self.post(session, self.configuration['token'], create)
                 futures[future] = vendor
 
             for f in as_completed(futures):
-                count += 0
                 resp = f.result()
-                self.logger.info(f'Response code {resp.status_code} for vendor "{futures[f]}"')
-        if 0 < count:
-            return PushResult(success=True, message=f'Completed {count} pushes.')
-        return None
+                if 200 <= resp.status_code <= 299:
+                    pushes += 1
+                else:
+                    self.logger.info(f'Response code {resp.status_code} for vendor "{futures[f]}"')
+                    self.logger.info(f'Response: {resp.json()}')
+        return PushResult(success=vendors == pushes, message=f'Completed {pushes}/{vendors} pushes.')
 
 
     def get_target_fields(self, _, __) -> Iterable[TargetMappingFields]:
@@ -91,17 +95,25 @@ class VTPluginARE(PluginBase):
 
 
     def validate(self, config: Mapping[str, Any]) -> ValidationResult:
-        token = config.get('token', '')
-        if token:
-            url = f'{VISOTRUST_URL}/api/v1/relationships'
+        try:
+            token = config.get('token', '')
+            email = config.get('email', '')
+            url   = config.get('url',   '')
+            if not (token and email and url):
+                raise ValueError('Missing keys')
+            url = f'{url}/api/v1/relationships'
             self.logger.info(f'Validating against url {url}')
             resp = requests.get(
                 url,
-                headers=add_user_agent({'Authorization': f"Bearer {token}"})
-                **self.request_args)
+                headers={'Authorization': f"Bearer {token}"},
+                **self.request_args(config))
             self.logger.info(f'{url} = {resp.status_code}')
-            if resp.status_code == 200:
+            if 200 <= resp.status_code <= 299:
                 return ValidationResult(success=True, message='Validation complete')
+            return ValidationResult(success=False, message=f'Response code {resp.status_code}')
+        except Exception as e:
+            self.logger.info(f"Validation error: {e}")
+            return ValidationResult(success=False, message=str(e))
 
 
 __all__ = ('VTPluginARE',)
