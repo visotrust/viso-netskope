@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+if [ -z "$1" ]
+  then
+    echo "Pass ta_cloud_exchange dir."
+    exit 1
+fi
+
+rsync -ua --exclude=".*" are_plugin $1/data/custom_plugins/
