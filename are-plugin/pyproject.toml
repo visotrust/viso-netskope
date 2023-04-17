@@ -13,8 +13,6 @@ typing-extensions = "^4.5.0"
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.1"
 pytest-asyncio = "^0.15.1"
-
-[tool.poetry.group.dev.dependencies]
 mypy = "^1.2.0"
 
 [build-system]
