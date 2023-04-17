@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+tar -zcf are-plugin.tar.gz --exclude=".*" are_plugin
