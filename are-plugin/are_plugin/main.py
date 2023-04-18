@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
 from typing import Iterable, Optional, Mapping, Any
-from itertools import groupby
+from itertools import groupby, tee
 from operator import attrgetter
 from concurrent.futures import Future, as_completed
 from requests_futures.sessions import FuturesSession # type: ignore
@@ -52,6 +52,11 @@ class VTPluginARE(PluginBase):
             **self.request_args(self.configuration))
 
 
+    @staticmethod
+    def filter_app(config, app):
+        return (app.cci or 0) <= config['max_cci']
+
+
     def push(self, apps: Iterable[Application], _) -> PushResult:
         apps = sorted(apps, key=attrgetter('vendor'))
         vendors = 0
@@ -59,6 +64,9 @@ class VTPluginARE(PluginBase):
         with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, vapps) in groupby(apps, attrgetter('vendor')):
+                (vapps, fapps) = tee(vapps)
+                if not any(self.filter_app(self.configuration, app) for app in fapps):
+                    continue
                 vendors += 1
                 app = next(vapps)
                 domain = app_domain(app)
