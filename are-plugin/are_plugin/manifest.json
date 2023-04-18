@@ -28,6 +28,14 @@
             "default": "",
             "mandatory": true,
             "description": "API Token"
+        },
+        {
+            "label": "Maximum CCI",
+            "key": "max_cci",
+            "type": "number",
+            "default": 100,
+            "mandatory": true,
+            "description": "Maximum CCI"
         }
     ]
 }

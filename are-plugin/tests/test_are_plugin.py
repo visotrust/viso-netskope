@@ -15,18 +15,24 @@ def fut(res):
     future.set_result(res)
     return future
 
-app = Application(
-    applicationId=1,
-    applicationName='xyz',
-    vendor='Vendor!',
-    deepLink='',
-    users=(),
-    customTags=(),
-    discoveryDomains=('xyz.net',),
-    steeringDomains=('xyz.com',))
+app_args = {
+    'applicationId': 1,
+    'applicationName': 'xyz',
+    'vendor': 'Vendor!',
+    'deepLink': '',
+    'users': (),
+    'customTags': (),
+    'discoveryDomains': ('xyz.net',),
+    'steeringDomains': ('xyz.com',)}
+
+app = Application(**app_args)
+
+config = {'token':   string.ascii_lowercase,
+          'email':   'admin@visotrust.com',
+          'url':     'http://localhost',
+          'max_cci': 100}
 
 def test_token():
-    token = string.ascii_letters
     tokens = []
 
     class P(VTPluginARE):
@@ -34,9 +40,8 @@ def test_token():
             tokens.append(token)
             return fut(Response())
 
-    P(config={'token': token,
-              'email': 'admin@visotrust.com'}).push([app], None)
-    assert tokens == [token]
+    P(config=config).push([app], None)
+    assert tokens == [config['token']]
 
 
 @patch('are_plugin.client.util.new_futures_session')
@@ -46,12 +51,9 @@ def test_http(fs_mock):
     post = fs_mock.return_value.__enter__.return_value.post
     post.return_value = fut(resp)
 
-    config = {'token': string.ascii_lowercase,
-              'email': 'admin@visotrust.com',
-              'url':   'http://localhost'}
+
     VTPluginARE(config=config).push(
         [app], None)
-
 
     assert post.call_args.args[0] == f'{config["url"]}/api/v1/relationships'
     args = post.call_args.kwargs
@@ -59,3 +61,13 @@ def test_http(fs_mock):
     j = json.loads(args['data'])
     assert app.vendor == j['name']
     assert config['email'] == j['businessOwnerEmail']
+
+
+@patch('are_plugin.client.util.new_futures_session')
+def test_http_cci(fs_mock):
+    post = fs_mock.return_value.__enter__.return_value.post
+
+    VTPluginARE(config=config | {'max_cci': 50}).push(
+        [Application(**(app_args | {'cci': 51}))], None)
+
+    assert not post.called
