@@ -1,7 +1,8 @@
 import sys, os, enum
 
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'lib'))
+if sys.modules.get('netskope'):
+    sys.path.insert(0, os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
 from typing import Iterable, Mapping, Optional, Any
 from itertools import groupby, chain, tee
@@ -24,12 +25,12 @@ from .proto import Application
 VISOTRUST_CONCURRENT = 2**6
 
 class CCLTag(str, enum.Enum):
-    UNKNOWN = 'CCI:Unknown'
-    POOR = 'CCI:Poor'
-    LOW = 'CCL:Low'
-    MEDIUM = 'CCI:Medium'
-    HIGH = 'CCI:High'
-    EXCELLENT = 'CCI:Excellent'
+    UNKNOWN = 'CCI Unknown'
+    POOR = 'CCI Poor'
+    LOW = 'CCL Low'
+    MEDIUM = 'CCI Medium'
+    HIGH = 'CCI High'
+    EXCELLENT = 'CCI Excellent'
 
 
 def app_domain(app: Application) -> str:
@@ -51,7 +52,6 @@ def vendor_cci(apps: Iterable[Application]) -> Optional[float]:
         total += app.cci or 0
         has_one = has_one or app.cci is not None
     return total / count if has_one else None
-
 
 
 CCL_THRESHOLDS = (
@@ -99,7 +99,7 @@ class VTPluginARE(PluginBase):
                 app = next(apps)
                 cci = vendor_cci(chain([app], apps))
 
-                if self.configuration['max_cci'] < cci:
+                if self.configuration['max_cci'] < (cci or 0):
                     continue
 
                 vendors += 1
