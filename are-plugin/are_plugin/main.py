@@ -4,8 +4,8 @@ if sys.modules.get('netskope'):
     sys.path.insert(0, os.path.join(
         os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
-from typing import Iterable, Mapping, Optional, Any
-from itertools import groupby, chain, tee
+from typing import Iterable, Optional, Mapping, Any
+from itertools import groupby, chain
 from operator import attrgetter
 from concurrent.futures import Future, as_completed
 from requests_futures.sessions import FuturesSession # type: ignore
@@ -27,7 +27,7 @@ VISOTRUST_CONCURRENT = 2**6
 class CCLTag(str, enum.Enum):
     UNKNOWN = 'CCI Unknown'
     POOR = 'CCI Poor'
-    LOW = 'CCL Low'
+    LOW = 'CCI Low'
     MEDIUM = 'CCI Medium'
     HIGH = 'CCI High'
     EXCELLENT = 'CCI Excellent'
@@ -146,7 +146,7 @@ class VTPluginARE(PluginBase):
                 raise ValueError('Missing keys')
             url = f'{url}/api/v1/relationships'
             self.logger.info(f'Validating against url {url}')
-            resp = requests.get(
+            resp = requests.options(
                 url,
                 headers={'Authorization': f"Bearer {token}"},
                 **self.request_args(config))

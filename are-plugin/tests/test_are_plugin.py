@@ -1,4 +1,4 @@
-import string, json
+import string, json, pytest
 from unittest.mock import patch
 from pydantic import BaseModel
 from concurrent.futures import Future
@@ -45,18 +45,17 @@ def test_token():
     assert tokens == [config['token']]
 
 
-def mock_resp(fs_mock):
+@pytest.fixture
+def post():
     resp = Response()
     resp.status_code = 200
-    post = fs_mock.return_value.__enter__.return_value.post
-    post.return_value = fut(resp)
-    return post
+    with patch('are_plugin.client.util.new_futures_session') as fs_mock:
+        post = fs_mock.return_value.__enter__.return_value.post
+        post.return_value = fut(resp)
+        yield post
 
 
-@patch('are_plugin.client.util.new_futures_session')
-def test_http(fs_mock):
-    post = mock_resp(fs_mock)
-
+def test_http(post):
     VTPluginARE(config=config).push([app], None)
 
     assert post.call_args.args[0] == f'{config["url"]}/api/v1/relationships'
@@ -68,10 +67,7 @@ def test_http(fs_mock):
     assert [CCLTag.POOR] == j['tags']
 
 
-@patch('are_plugin.client.util.new_futures_session')
-def test_http_avg_cci(fs_mock):
-    post = mock_resp(fs_mock)
-
+def test_http_avg_cci(post):
     VTPluginARE(config=config).push(
         [app, Application(**(app_args | {'cci': 100}))], None)
 
@@ -80,10 +76,7 @@ def test_http_avg_cci(fs_mock):
     assert [CCLTag.LOW] == j['tags']
 
 
-@patch('are_plugin.client.util.new_futures_session')
-def test_http_no_cci(fs_mock):
-    post = mock_resp(fs_mock)
-
+def test_http_no_cci(post):
     VTPluginARE(config=config).push(
         [Application(**(app_args | {'cci': None}))], None)
 
@@ -92,10 +85,7 @@ def test_http_no_cci(fs_mock):
     assert [CCLTag.UNKNOWN] == j['tags']
 
 
-@patch('are_plugin.client.util.new_futures_session')
-def test_http_cci(fs_mock):
-    post = fs_mock.return_value.__enter__.return_value.post
-
+def test_http_cci(post):
     VTPluginARE(config=config | {'max_cci': 50}).push(
         [Application(**(app_args | {'cci': 51}))], None)
 
