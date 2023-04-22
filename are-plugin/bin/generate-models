@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+jq 'del(.components.schemas.RelationshipCreateUpdateInput.required[] | select(. == "id"))' |
+  datamodel-codegen --output are_plugin/client/model.py
