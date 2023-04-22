@@ -4,8 +4,8 @@ if sys.modules.get('netskope'):
     sys.path.insert(0, os.path.join(
         os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
-from typing import Iterable, Optional, Mapping, Any
-from itertools import groupby, chain
+from typing import Iterable, Optional, Mapping, Callable, Any
+from itertools import groupby, chain, tee
 from operator import attrgetter
 from concurrent.futures import Future, as_completed
 from requests_futures.sessions import FuturesSession # type: ignore
@@ -70,6 +70,21 @@ def cci_to_ccl(cci: Optional[float]) -> CCLTag:
     return CCLTag.EXCELLENT
 
 
+def build_filter(config: Mapping[str, Any]) -> Callable[[Application], bool]:
+    incl = {s.strip() for s in config.get('include_cats', '').strip().split(',')}
+    excl = {s.strip() for s in config.get('exclude_cats', '').strip().split(',')}
+    if incl:
+        def _(app):
+            return app.categoryName in incl
+    elif excl:
+        def _(app):
+            return app.categoryName not in excl
+    else:
+        def _(_):
+            return True
+    return _
+
+
 class VTPluginARE(PluginBase):
     def request_args(self, config):
         args = {}
@@ -93,13 +108,18 @@ class VTPluginARE(PluginBase):
         apps = sorted(apps, key=attrgetter('vendor'))
         vendors = 0
         pushes = 0
+        filterfn = build_filter(self.configuration)
+
         with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, apps) in groupby(apps, attrgetter('vendor')):
-                app = next(apps)
-                cci = vendor_cci(chain([app], apps))
+                app  = next(apps)
+                apps = chain([app], apps)
+                (vapps, fapps) = tee(apps)
+                cci = vendor_cci(vapps)
 
-                if self.configuration['max_cci'] < (cci or 0):
+                if (self.configuration['max_cci'] < (cci or 0)
+                    or not any(not filterfn(a) for a in fapps)):
                     continue
 
                 vendors += 1
@@ -139,6 +159,8 @@ class VTPluginARE(PluginBase):
 
     def validate(self, config: Mapping[str, Any]) -> ValidationResult:
         try:
+            assert (config.get('include_cats', '').strip()
+                    ^ config.get('exclude_cats', '').strip())
             token = config.get('token', '')
             email = config.get('email', '')
             url   = config.get('url',   '')

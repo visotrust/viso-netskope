@@ -11,7 +11,7 @@
             "type": "text",
             "default": "https://visotrust.com",
             "mandatory": true,
-            "description": "VISOTrust instance URL"
+            "description": "VISOTrust instance URL."
         },
         {
             "label": "VISO Business Owner Email",
@@ -19,7 +19,7 @@
             "type": "text",
             "default": "",
             "mandatory": true,
-            "description": "VISOTrust client email address"
+            "description": "VISOTrust client email address."
         },
         {
             "label": "VISO API Token",
@@ -27,7 +27,7 @@
             "type": "password",
             "default": "",
             "mandatory": true,
-            "description": "API Token"
+            "description": "API Token."
         },
         {
             "label": "Maximum CCI",
@@ -35,7 +35,23 @@
             "type": "number",
             "default": 100,
             "mandatory": true,
-            "description": "Maximum CCI"
+            "description": "Maximum CCI."
+        },
+        {
+            "label": "Include Categories (CSV)",
+            "key": "include_cats",
+            "type": "text",
+            "default": "",
+            "mandatory": false,
+            "description": "Include only these categories."
+        },
+        {
+            "label": "Exclude Categories (CSV)",
+            "key": "exclude_cats",
+            "type": "text",
+            "default": "",
+            "mandatory": false,
+            "description": "Exclude these categories."
         }
     ]
 }
