@@ -7,5 +7,7 @@ class Application(Protocol):
 
     cci: Optional[int]
 
+    categoryName: Optional[str]
+
     discoveryDomains: list[str]
     steeringDomains: list[str]
