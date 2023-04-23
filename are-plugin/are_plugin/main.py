@@ -5,7 +5,7 @@ if sys.modules.get('netskope'):
         os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
 from typing import Iterable, Optional, Mapping, Callable, Any
-from itertools import groupby, chain, tee
+from itertools import groupby, chain, tee, filterfalse
 from operator import attrgetter
 from concurrent.futures import Future, as_completed
 from requests_futures.sessions import FuturesSession # type: ignore
@@ -105,24 +105,22 @@ class VTPluginARE(PluginBase):
 
 
     def push(self, apps: Iterable[Application], _) -> PushResult:
-        apps = sorted(apps, key=attrgetter('vendor'))
-        vendors = 0
-        pushes = 0
+        apps = sorted((x for x in apps if x.vendor), key=attrgetter('vendor'))
         filterfn = build_filter(self.configuration)
+        vendors = count = pushes = 0
 
         with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, apps) in groupby(apps, attrgetter('vendor')):
+                vendors += 1
                 app  = next(apps)
                 apps = chain([app], apps)
                 (vapps, fapps) = tee(apps)
                 cci = vendor_cci(vapps)
 
                 if (self.configuration['max_cci'] < (cci or 0)
-                    or not any(not filterfn(a) for a in fapps)):
+                    or any(filterfn(a) for a in apps)):
                     continue
-
-                vendors += 1
 
                 ccl = cci_to_ccl(cci)
                 domain = app_domain(app)
@@ -144,6 +142,7 @@ class VTPluginARE(PluginBase):
                 else:
                     self.logger.info(f'Response code {resp.status_code} for vendor "{futures[f]}"')
                     self.logger.info(f'Response: {resp.json()}')
+
         return PushResult(success=vendors == pushes, message=f'Completed {pushes}/{vendors} pushes.')
 
 
