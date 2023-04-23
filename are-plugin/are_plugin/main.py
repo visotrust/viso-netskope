@@ -22,7 +22,7 @@ from .client import util
 from .client.model import RelationshipCreateUpdateInput
 from .proto import Application
 
-VISOTRUST_CONCURRENT = 2**6
+VISOTRUST_CONCURRENT = 1
 
 class CCLTag(str, enum.Enum):
     UNKNOWN = 'CCI Unknown'
@@ -159,13 +159,17 @@ class VTPluginARE(PluginBase):
 
     def validate(self, config: Mapping[str, Any]) -> ValidationResult:
         try:
-            assert (config.get('include_cats', '').strip()
-                    ^ config.get('exclude_cats', '').strip())
+            incl = config.get('include_cats')
+            excl = config.get('exclude_cats')
+            if incl or excl:
+                assert bool(incl) ^ bool(excl)
+
             token = config.get('token', '')
             email = config.get('email', '')
             url   = config.get('url',   '')
             if not (token and email and url):
                 raise ValueError('Missing keys')
+
             url = f'{url}/api/v1/relationships'
             self.logger.info(f'Validating against url {url}')
             resp = requests.options(
