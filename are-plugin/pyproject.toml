@@ -16,6 +16,7 @@ mypy = "^1.2.0"
 
 [tool.poetry.group.local.dependencies]
 pydantic = "1.8.2"
+requests = "2.5.0"
 
 [build-system]
 requires = ["poetry>=1.2.0"]
