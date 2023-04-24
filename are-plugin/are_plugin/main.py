@@ -5,7 +5,7 @@ if sys.modules.get('netskope'):
         os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
 from typing import Iterable, Optional, Mapping, Callable, Any
-from itertools import groupby, chain, tee, filterfalse
+from itertools import groupby, chain
 from operator import attrgetter
 from concurrent.futures import Future, as_completed
 from requests_futures.sessions import FuturesSession # type: ignore
