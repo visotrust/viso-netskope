@@ -1,0 +1,7 @@
+are_plugin/lib
+tests
+**/*.pyc
+**/*.md
+**/*__pycache__
+**/.git
+Dockerfile*

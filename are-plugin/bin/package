@@ -2,4 +2,4 @@
 
 set -e -o pipefail
 
-tar -zcf are-plugin.tar.gz --exclude=".*" are_plugin
+tar -zcvf are-plugin.tar.gz --exclude-from="tarball-excludes" are_plugin
