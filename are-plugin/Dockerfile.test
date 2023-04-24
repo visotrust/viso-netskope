@@ -1,0 +1,17 @@
+FROM      python:3.9-slim
+
+ENV PATH "/root/.local/bin:${PATH}"
+RUN      apt-get update && apt-get install -yy bash build-essential libffi-dev python-dev
+SHELL    ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
+WORKDIR /test
+
+COPY pyproject.toml poetry.toml ./
+COPY are_plugin ./are_plugin/
+COPY tests      ./tests/
+
+RUN pip install --no-cache-dir 'poetry==1.2.0'
+RUN poetry install --with local
+
+ENTRYPOINT []
+CMD        poetry run pytest tests
