@@ -121,13 +121,13 @@ class VTPluginARE(PluginBase):
         with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, apps) in groupby(apps, attrgetter('vendor')):
-                vendors += 1
                 app = next(apps)
                 (count, cci) = vendor_cci(a for a in chain([app], apps) if keepfn(a))
 
                 if count == 0 or self.configuration['max_cci'] < (cci or 0):
                     continue
 
+                vendors += 1
                 ccl = cci_to_ccl(cci)
                 domain = app_domain(app)
 
