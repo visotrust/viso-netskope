@@ -1,0 +1,9 @@
+are_plugin/lib/
+are_plugin/lib/*.dist-info/
+tests
+**/.*
+**/*.pyc
+**/*.md
+**/*__pycache__/
+**/*.git
+Dockerfile*
