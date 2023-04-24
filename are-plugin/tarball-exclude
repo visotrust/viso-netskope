@@ -5,4 +5,5 @@ are_plugin/lib/charset_normalizer
 are_plugin/lib/idna
 are_plugin/lib/urllib3
 *.pyc
+tests
 *__pycache__

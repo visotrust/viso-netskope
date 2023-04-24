@@ -5,7 +5,7 @@ description = ""
 authors = ["Moe A <moe.aboulkheir@visotrust.com>"]
 
 [tool.poetry.group.main.dependencies]
-python = ">=3.9.16"
+python = "3.9.*"
 requests-futures = "^1.0.0"
 typing-extensions = "^4.5.0"
 
