@@ -113,13 +113,6 @@ def test_http_exclude(post):
     assert not post.called
 
 
-def test_http_exclude(post):
-    VTPluginARE(config=config | {'exclude_cats': 'Homeopathy'}).push(
-        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None)
-
-    assert not post.called
-
-
 def test_http_exclude_pos(post):
     VTPluginARE(config=config | {'exclude_cats': 'Homeopathy'}).push(
         [Application(**app_args)], None)
