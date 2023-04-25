@@ -24,6 +24,8 @@ set of live plugins.  If the plugin list has a VISO entry, we're in good shape.
 
 Click on the plugin to configure.
 
+<p></p>
+
 ## Plugin Configuration
 
 The steps are as follows:
@@ -38,7 +40,11 @@ We'll skip step one.
 ![Config Step 2](static/config-2.png "Config Step 2")
 
 The fields are self-explanatory. On clicking "Next", an `OPTIONS` request will
-be sent to the VISO public API using the given credentials.  The final configuration
+be sent to the VISO public API using the given credentials.
+
+![Config Step 3](static/config-3.png "Config Step 3")
+
+The final configuration
 screen is a little confusing.  It appears _all_ ARE plugins are required to define
 at least one mapping.  Whatever you select will have no influence on how the plugin
 operators &mdash; just select the first item from both lists.
