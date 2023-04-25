@@ -6,3 +6,4 @@ are_plugin/lib/idna
 are_plugin/lib/urllib3
 *.pyc
 *__pycache__
+tests

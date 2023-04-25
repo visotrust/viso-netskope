@@ -124,7 +124,7 @@ class VTPluginARE(PluginBase):
                 app = next(apps)
                 (count, cci) = vendor_cci(a for a in chain([app], apps) if keepfn(a))
 
-                if count == 0 or self.configuration['max_cci'] < (cci or 0):
+                if count == 0 or self.configuration.get('max_cci', 100) < (cci or 0):
                     continue
 
                 vendors += 1
