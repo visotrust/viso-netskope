@@ -2,7 +2,7 @@
 
 ## Plugin Installation
 
-The plugin is installed as a compressed package (`.tar.gz.`). If you navigate
+The plugin is installed as a compressed package (`.tar.gz`). If you navigate
 from the Admin UI to the plugins screen, and follow `Settings` -> `Plugins` in
 the left navbar, there ought to be a screen with an `Add New Plugin` button
 on the right:
@@ -17,7 +17,7 @@ see a "Could not load..." error immediately after upload.
 <img src="static/upload.png" align="left" width="300" />
 
 This message is spurious. Filter the visible plugins to the ARE-specific subset via the
-"Category" dropdown, both to remove clutter and cause Netskope to-revaluate the
+"Category" dropdown, both to remove clutter and cause Netskope to-reevaluate the
 set of live plugins.  If the plugin list has a VISO entry, we're in good shape.
 
 <img src="static/installed.png" align="right" width="300" />
@@ -47,4 +47,4 @@ be sent to the VISO public API using the given credentials.
 The final configuration
 screen is a little confusing.  It appears _all_ ARE plugins are required to define
 at least one mapping.  Whatever you select will have no influence on how the plugin
-operators &mdash; just select the first item from both lists.
+operates &mdash; just select the first item from both lists.
