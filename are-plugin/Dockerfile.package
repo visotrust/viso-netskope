@@ -16,12 +16,7 @@ RUN mkdir -p are_plugin/lib                                   && \
     pip freeze | grep -iEo '^([a-z0-9][a-z0-9_-]+)' > req.txt && \
     pip install -r req.txt -t are_plugin/lib                  && \
     rm -f req.txt                                             && \
-    tar -zcvf are-plugin.tar.gz --exclude-from=tarball-exclude are_plugin
+    mkdir /output
 
-FROM alpine:3.17.3 AS run
 
-WORKDIR /
-
-COPY --from=build /build/are-plugin.tar.gz /
-
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD tar -zcvf /output/viso-netskope.tar.gz --exclude-from=tarball-exclude are_plugin
