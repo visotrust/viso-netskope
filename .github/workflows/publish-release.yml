@@ -20,12 +20,7 @@ jobs:
       - name: Run image for output
         run:  docker run -e ASSERT_VERSION=$VERSION_NAME -v $(pwd):/output vt
       - name: Verify release notes
-        run:  |
-          echo $VERSION_NAME
-          if [ $(head -n 1 RELEASE-NOTES.md) != "# $VERSION_NAME" ] then
-            echo "No release notes found for $VERSION_NAME"
-            exit 1
-          fi
+        run:  bin/check-release-notes
       - name: Get release notes
         run: |
            echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> $GITHUB_ENV
