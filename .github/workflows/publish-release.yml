@@ -25,7 +25,7 @@ jobs:
       - name: Get release notes
         id:   notes
         run: |
-           echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> $GITHUB_OUTPUT
+           echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q' | awk '$1=$1'") >> $GITHUB_OUTPUT
       - name: Export env
         id:   export
         run:  |
