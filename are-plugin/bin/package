@@ -14,4 +14,4 @@ if [ ! -z "$ASSERT_VERSION" ] && [ "$ASSERT_VERSION" != "$CUR_VERSION" ]
     exit 1
 fi
 
-tar -zcvf viso-netskope.tar.gz --exclude-from=tarball-exclude are_plugin
+tar -zcvf /output/viso-netskope.tar.gz --exclude-from=tarball-exclude are_plugin
