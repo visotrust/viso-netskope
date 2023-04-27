@@ -16,12 +16,14 @@ jobs:
       - name: Build image
         run:  docker build . -t vt -f Dockerfile.package
       - name: Get version number/name
+        id:   version
         run:  echo "VERSION_NAME=$(echo $GITHUB_REF_NAME | awk -F/ '{print $NF}')" >> $GITHUB_ENV
       - name: Run image for output
         run:  docker run -e ASSERT_VERSION=$VERSION_NAME -v $(pwd):/output vt
       - name: Verify release notes
         run:  ./bin/check-release-notes
       - name: Get release notes
+        id:   notes
         run: |
            echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> $GITHUB_ENV
       - name: Debug
@@ -30,5 +32,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: are-plugin/viso-netskope.tar.gz
-          tag:  $GITHUB_REF
-          body: $RELEASE_NOTES
+          tag: ${{ steps.version.outputs.VERSION_NAME }}
+          body: |
+            ${{ steps.notes.outputs.RELEASE_NOTES }}
