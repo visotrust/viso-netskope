@@ -16,7 +16,7 @@ jobs:
       - name: Build image
         run:  docker build . -t vt -f Dockerfile.package
       - name: Get version number/name
-        run:  echo "VERSION_NAME=$(echo $GITHUB_REF_NAME | awk -F/ '{print $NF}')" >> $GITHUB_ENV"
+        run:  echo "VERSION_NAME=$(echo $GITHUB_REF_NAME | awk -F/ '{print $NF}')" >> $GITHUB_ENV
       - name: Run image for output
         run:  docker run -e ASSERT_VERSION=$VERSION_NAME $(pwd):/output vt
       - name: Verify release notes
