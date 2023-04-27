@@ -26,12 +26,17 @@ jobs:
         id:   notes
         run: |
            echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> $GITHUB_ENV
+      - name: Export env
+        id:   export
+        run:  |
+          echo "VERSION_NAME=$VERSION_NAME" >> GITHUB_OUTPUT
+          echo "RELEASE_NOTES=$RELEASE_NOTES" >> GITHUB_OUTPUT
       - name: Debug
         run:  pwd && find .
       - name: Upload tarball to release
         uses: svenstaro/upload-release-action@v2
         with:
           file: are-plugin/viso-netskope.tar.gz
-          tag: ${{ steps.version.outputs.VERSION_NAME }}
+          tag: ${{ steps.export.outputs.VERSION_NAME }}
           body: |
-            ${{ steps.notes.outputs.RELEASE_NOTES }}
+            ${{ steps.export.outputs.RELEASE_NOTES }}
