@@ -20,17 +20,9 @@ RUN      mkdir -p are_plugin/lib && pip install -r req.txt -t are_plugin/lib && 
 
 COPY     are_plugin ./are_plugin
 
-ARG      WITH_VERSION=
-
-RUN      bash -s <<EOF
-if [ -z "$WITH_VERSION" ]
-  then
-    echo "Sticking with version $(poetry version)"
-  else
-    echo "Updating to $WITH VERSION"
-    poetry version $WITH_VERSION
-fi
-EOF
+ENV      ASSERT_VERSION=
+ENV      WITH_VERSION=
 
 
-CMD tar -zcvf /output/viso-netskope.tar.gz --exclude-from=tarball-exclude are_plugin
+COPY    bin/package ./
+CMD     ./package

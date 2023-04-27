@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+if [ ! -z "$WITH_VERSION" ]
+then
+  echo "Updating to $WITH_VERSION"
+  poetry version $WITH_VERSION
+fi
+CUR_VERSION=$(poetry version | grep -o "[0-9][0-9a-zA-Z\-_.]*$")
+if [ ! -z "$ASSERT_VERSION" ] && [ "$ASSERT_VERSION" != "$CUR_VERSION" ]
+  then
+    echo "Version mismatch"
+    exit 1
+fi
