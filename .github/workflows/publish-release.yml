@@ -1,0 +1,35 @@
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  make-release:
+    name:    Get Plugin Output
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./are-plugin
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build image
+        run:  docker build . -t vt -f Dockerfile.package
+      - name: Run image
+        run:  docker run vt
+      - name: Run image for output
+        run:  docker run -e ASSERT_VERSION=-$GITHUB_REF_NAME $(pwd):/output vt
+      - name: Verify release notes
+        run:  |
+          if [ $(head -n 1 RELEASE-NOTES.md | grep "[0-9][0-9a-zA-Z\-_.]*$") != "# $GITHUB_REF_NAME" ] then
+            echo "No release notes found for $GITHUB_REF_NAME"
+            exit 1
+          fi
+      - name: Get release notes
+        run: |
+           echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" | >> $GITHUB_ENV
+      - name: Upload tarball to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: viso-netskope.tar.gz
+          tag:  $GITHUB_REF
+          body: $RELEASE_NOTES
