@@ -2,7 +2,8 @@
 
 set -e -o pipefail
 
-if [ $(head -n 1 RELEASE-NOTES.md) != "# $VERSION_NAME" ]
+FIRST_LINE=$(head -n 1 RELEASE-NOTES.md)
+if [ "$FIRST_LINE" != "# $VERSION_NAME" ]
 then
   echo "No release notes found for $VERSION_NAME"
   exit 1

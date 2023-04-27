@@ -20,10 +20,12 @@ jobs:
       - name: Run image for output
         run:  docker run -e ASSERT_VERSION=$VERSION_NAME -v $(pwd):/output vt
       - name: Verify release notes
-        run:  bin/check-release-notes
+        run:  ./bin/check-release-notes
       - name: Get release notes
         run: |
            echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> $GITHUB_ENV
+      - name: Debug
+        run:  pwd && find .
       - name: Upload tarball to release
         uses: svenstaro/upload-release-action@v2
         with:
