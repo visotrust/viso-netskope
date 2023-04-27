@@ -23,7 +23,5 @@ COPY     are_plugin ./are_plugin
 ENV      ASSERT_VERSION=
 ENV      WITH_VERSION=
 
-RUN     mkdir /output
-
 COPY    bin/package ./
 CMD     ./package
