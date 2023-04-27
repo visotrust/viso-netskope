@@ -25,11 +25,11 @@ jobs:
       - name: Get release notes
         id:   notes
         run: |
-           echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> GITHUB_OUTPUT
+           echo "RELEASE_NOTES=$(tail -n+2 RELEASE-NOTES.md | sed '/^# /Q') | awk '$1=$1'" >> $GITHUB_OUTPUT
       - name: Export env
         id:   export
         run:  |
-          echo "VERSION_NAME=$VERSION_NAME" >> GITHUB_OUTPUT
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
       - name: TEST OUTPUT
         run:  |
           echo ${{steps.export.outputs.VERSION_NAMES}}
