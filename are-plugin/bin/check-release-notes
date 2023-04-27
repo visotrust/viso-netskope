@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+FIRST_LINE=$(head -n 1 RELEASE-NOTES.md)
+if [ "$FIRST_LINE" != "# $VERSION_NAME" ]
+then
+  echo "No release notes found for $VERSION_NAME"
+  exit 1
+fi

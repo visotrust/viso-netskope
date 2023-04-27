@@ -1,27 +1,27 @@
-FROM alpine:3.17.3 AS build
+# syntax=docker/dockerfile:1.5
+
+FROM     alpine:3.17.3 AS build
 
 ENV PATH "/root/.local/bin:/build/.venv/bin:${PATH}"
 RUN      apk add --no-cache bash python3-dev build-base py3-pip libffi-dev
 SHELL    ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
-WORKDIR /build
+WORKDIR  /build
 
-COPY pyproject.toml poetry.toml tarball-exclude ./
-COPY are_plugin ./are_plugin
+RUN      pip3 install --no-cache-dir 'poetry==1.2.0'
 
-RUN pip3 install --no-cache-dir 'poetry==1.2.0'
+COPY     pyproject.toml poetry.toml tarball-exclude ./
 
-RUN mkdir -p are_plugin/lib                                   && \
-    poetry install --only main                                && \
-    pip freeze | grep -iEo '^([a-z0-9][a-z0-9_-]+)' > req.txt && \
-    pip install -r req.txt -t are_plugin/lib                  && \
-    rm -f req.txt                                             && \
-    tar -zcvf are-plugin.tar.gz --exclude-from=tarball-exclude are_plugin
+RUN      poetry install --only main
 
-FROM alpine:3.17.3 AS run
+RUN      pip freeze | grep -iEo '^([a-z0-9][a-z0-9_-]+)' > req.txt
+RUN      mkdir -p are_plugin/lib && pip install -r req.txt -t are_plugin/lib && \
+         rm -f req.txt && mkdir /output
 
-WORKDIR /
+COPY     are_plugin ./are_plugin
 
-COPY --from=build /build/are-plugin.tar.gz /
+ENV      ASSERT_VERSION=
+ENV      WITH_VERSION=
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+COPY    bin/package ./
+CMD     ./package
