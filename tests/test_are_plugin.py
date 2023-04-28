@@ -1,19 +1,24 @@
-import string, json, pytest
-from unittest.mock import patch
-from pydantic import BaseModel
+import json
+import string
 from concurrent.futures import Future
-from requests import Response
-from are_plugin.netskope_model import Application
+from unittest.mock import patch
 
-from are_plugin.main import VTPluginARE, CCLTag
+import pytest
+from are_plugin.main import CCLTag, VTPluginARE
+from are_plugin.netskope_model import Application
+from pydantic import BaseModel
+from requests import Response
+
 
 class Response(BaseModel):
     status_code: int = 200
+
 
 def fut(res):
     future = Future()
     future.set_result(res)
     return future
+
 
 app_args = {
     'applicationId': 1,
@@ -24,14 +29,18 @@ app_args = {
     'cci': 0,
     'customTags': (),
     'discoveryDomains': ('xyz.net',),
-    'steeringDomains': ('xyz.com',)}
+    'steeringDomains': ('xyz.com',),
+}
 
 app = Application(**app_args)
 
-config = {'token':   string.ascii_lowercase,
-          'email':   'admin@visotrust.com',
-          'url':     'http://localhost',
-          'max_cci': 100}
+config = {
+    'token': string.ascii_lowercase,
+    'email': 'admin@visotrust.com',
+    'url': 'http://localhost',
+    'max_cci': 100,
+}
+
 
 def test_token():
     tokens = []
@@ -69,7 +78,8 @@ def test_http(post):
 
 def test_http_avg_cci(post):
     VTPluginARE(config=config).push(
-        [app, Application(**(app_args | {'cci': 100}))], None)
+        [app, Application(**(app_args | {'cci': 100}))], None
+    )
 
     args = post.call_args.kwargs
     j = json.loads(args['data'])
@@ -77,8 +87,7 @@ def test_http_avg_cci(post):
 
 
 def test_http_no_cci(post):
-    VTPluginARE(config=config).push(
-        [Application(**(app_args | {'cci': None}))], None)
+    VTPluginARE(config=config).push([Application(**(app_args | {'cci': None}))], None)
 
     args = post.call_args.kwargs
     j = json.loads(args['data'])
@@ -87,34 +96,39 @@ def test_http_no_cci(post):
 
 def test_http_cci(post):
     VTPluginARE(config=config | {'max_cci': 50}).push(
-        [Application(**(app_args | {'cci': 51}))], None)
+        [Application(**(app_args | {'cci': 51}))], None
+    )
 
     assert not post.called
 
 
 def test_http_include(post):
     VTPluginARE(config=config | {'include_cats': 'Homeopathy'}).push(
-        [Application(**app_args)], None)
+        [Application(**app_args)], None
+    )
 
     assert not post.called
 
 
 def test_http_include_pos(post):
     VTPluginARE(config=config | {'include_cats': 'Homeopathy'}).push(
-        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None)
+        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None
+    )
 
     assert post.called
 
 
 def test_http_exclude(post):
     VTPluginARE(config=config | {'exclude_cats': 'Homeopathy'}).push(
-        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None)
+        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None
+    )
 
     assert not post.called
 
 
 def test_http_exclude_pos(post):
     VTPluginARE(config=config | {'exclude_cats': 'Homeopathy'}).push(
-        [Application(**app_args)], None)
+        [Application(**app_args)], None
+    )
 
     assert post.called

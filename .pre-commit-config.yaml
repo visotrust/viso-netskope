@@ -1,0 +1,21 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/hakancelikdev/unimport
+    rev: 0.12.1
+    hooks:
+      - id: unimport
+        args: [--remove, --ignore-init, --gitignore]
+-   repo: https://github.com/psf/black
+    rev: 22.8.0
+    hooks:
+    -   id: black
+        args: ["-S"]
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--filter-files"]

@@ -1,5 +1,11 @@
 # VT Netskope ARE Plugin
 
+## Developing
+
+``` sh
+$ pre-commit install
+```
+
 ## API Client Library
 
 The main awkwardness around the client library was how much was going to be
@@ -26,16 +32,6 @@ optional via something like:
 
 ``` sh
 jq 'del(.components.schemas.RelationshipCreateUpdateInput.required[] | select(. == "id"))'
-```
-
-### For Posterity
-
-In case we decide to use an entirely generated OpenAPI client, here is how to manipulate
-the OpenAPI JSON to indicate that it's an authenticated (and not anonymous API):
-
-```sh
-$ jq '.components += {"securitySchemes": {"Bearer": {"type": "http", "scheme": "bearer"}}} openapi.json |
-    jq '. += {"security": [{"Bearer": []}]}'
 ```
 
 ## Testability
