@@ -6,6 +6,8 @@
 $ pre-commit install
 ```
 
+For commit message conventions (enforce by pre-commit hooks), see [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary)
+
 ## API Client Library
 
 The main awkwardness around the client library was how much was going to be
