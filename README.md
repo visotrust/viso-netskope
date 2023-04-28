@@ -18,7 +18,7 @@ authenticate, then retrieve the OpenAPI JSON, then modify it in order to
 indicate that it requires authentication would have been onerous. Having looked
 at the Python generators for OpenAPI, I opted instead to use
 [datamodel-code-generator](https://github.com/koxudaxi/datamodel-code-generator)
-to generate [pydantic](https://docs.pydantic.dev/) models ([client/model.py](client/model.py))
+to generate [pydantic](https://docs.pydantic.dev/) models ([model.py](are_plugin/client/model.py))
 for the domain types, and to hand-write a client which accepts them.  The generated
 model file is significantly smaller than the OpenAPI specification, however
 will be needed to be updated whenever the webapp API changes.  It is generated like so:
