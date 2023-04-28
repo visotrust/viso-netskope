@@ -14,7 +14,7 @@ COPY     pyproject.toml poetry.toml tarball-exclude ./
 
 RUN      poetry install --only main
 
-RUN      pip freeze | grep -iEo '^([a-z0-9][a-z0-9_-]+)' > req.txt
+RUN      pip freeze | grep -iEo '^([a-z0-9v][a-z0-9_-]+)' > req.txt
 RUN      mkdir -p are_plugin/lib && pip install -r req.txt -t are_plugin/lib && \
          rm -f req.txt && mkdir /output
 
