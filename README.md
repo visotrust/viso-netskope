@@ -6,7 +6,7 @@
 $ pre-commit install
 ```
 
-For commit message conventions (enforce by pre-commit hooks), see [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary)
+For commit message conventions (enforced by `pre-commit` hooks), see [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary).
 
 ## API Client Library
 
@@ -18,22 +18,13 @@ authenticate, then retrieve the OpenAPI JSON, then modify it in order to
 indicate that it requires authentication would have been onerous. Having looked
 at the Python generators for OpenAPI, I opted instead to use
 [datamodel-code-generator](https://github.com/koxudaxi/datamodel-code-generator)
-to generate [pydantic](https://docs.pydantic.dev/) models ([client/model.py])
+to generate [pydantic](https://docs.pydantic.dev/) models ([client/model.py](client/model.py))
 for the domain types, and to hand-write a client which accepts them.  The generated
 model file is significantly smaller than the OpenAPI specification, however
 will be needed to be updated whenever the webapp API changes.  It is generated like so:
 
 ```sh
 $ datamodel-codegen --input openapi.json --output client/model.py
-```
-
-### Pre-processing of openapi.json
-
-Note that we're currently making the `RelationshipCreateUpdateInput.id` field
-optional via something like:
-
-``` sh
-jq 'del(.components.schemas.RelationshipCreateUpdateInput.required[] | select(. == "id"))'
 ```
 
 ## Testability
