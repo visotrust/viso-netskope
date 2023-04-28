@@ -4,10 +4,11 @@ from concurrent.futures import Future
 from unittest.mock import patch
 
 import pytest
-from are_plugin.main import CCLTag, VTPluginARE
-from are_plugin.netskope_model import Application
 from pydantic import BaseModel
 from requests import Response
+
+from are_plugin.main import CCLTag, VTPluginARE
+from are_plugin.netskope_model import Application
 
 
 class Response(BaseModel):
