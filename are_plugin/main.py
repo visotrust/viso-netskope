@@ -23,6 +23,7 @@ from .are import (
 from .client import util
 from .client.model import RelationshipCreateUpdateInput
 from .proto import Application
+from .url import BASE_URL
 
 VISOTRUST_CONCURRENT = 1
 
@@ -110,7 +111,7 @@ class VTPluginARE(PluginBase):
         if sys.modules.get('netskope'):
             args.update(
                 proxies=self.proxy,
-                verify=self.ssl_validation and config['url'].startswith('https'),
+                verify=self.ssl_validation and BASE_URL.startswith('https'),
             )
         return args
 
@@ -118,7 +119,7 @@ class VTPluginARE(PluginBase):
         self, session: FuturesSession, token: str, create: RelationshipCreateUpdateInput
     ) -> Future:
         return session.post(
-            f"{self.configuration['url']}/api/v1/relationships",
+            f"{BASE_URL}/api/v1/relationships",
             headers={
                 'Authorization': f"Bearer {token}",
                 'Content-Type': 'application/json',
@@ -190,12 +191,11 @@ class VTPluginARE(PluginBase):
                 )
             token = config.get('token', '')
             email = config.get('email', '')
-            url = config.get('url', '')
-            if not (token and email and url):
+            if not (token and email):
                 raise ValueError('Missing keys.')
 
-            url = f'{url}/api/v1/relationships'
-            self.logger.info(f'Validating against url {url}.')
+            url = f'{BASE_URL}/api/v1/relationships'
+            self.logger.info(f'Validating against url {BASE_URL}.')
             resp = requests.options(
                 url,
                 headers={'Authorization': f"Bearer {token}"},
