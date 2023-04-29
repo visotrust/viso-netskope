@@ -2,10 +2,10 @@
 
 set -e -o pipefail
 
-git config --unset-all core.hooksPath
-
-pre-commit install
-
 npm install
 npx husky add .husky/prepare-commit-msg "exec < /dev/tty && npx cz --hook || true"
 npx husky install
+
+git config --unset-all core.hooksPath
+
+pre-commit install
