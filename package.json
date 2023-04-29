@@ -2,7 +2,7 @@
   "devDependencies": {
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
-    "husky": "^8.0.3"
+    "husky": "^8.0.0"
   },
   "config": {
     "commitizen": {
@@ -13,5 +13,8 @@
     "hooks": {
       "prepare-commit-msg": "exec < /dev/tty && npx cz --hook || true"
     }
+  },
+  "scripts": {
+    "prepare": "husky install"
   }
 }
