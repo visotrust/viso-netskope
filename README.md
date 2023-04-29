@@ -14,7 +14,7 @@ For commit message conventions (enforced by `pre-commit` hooks), see [Convention
 is used to generate [pydantic](https://docs.pydantic.dev/) models
 (see [model.py](are_plugin/client/model.py)) from the schemas in the webapp's OpenAPI
 JSON.  The resulting Python module is significantly smaller than the OpenAPI
-specification, however it'll updating whenever the webapp API changes.
+specification, however it'll need updating whenever the webapp API changes.
 It's generated like so:
 
 ```sh
