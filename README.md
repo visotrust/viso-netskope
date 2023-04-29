@@ -1,4 +1,4 @@
-# VT Netskope ARE Plugin
+# VISO TRUST Netskope ARE Plugin
 
 ## Developing
 
@@ -10,18 +10,12 @@ For commit message conventions (enforced by `pre-commit` hooks), see [Convention
 
 ## API Client Library
 
-The main awkwardness around the client library was how much was going to be
-generated from the OpenAPI JSON, and whether we were going to embed the OpenAPI
-JSON in this repository, or include the code generated from it. I am not a fan
-of committing generated code, however using a GH action to standup the webapp,
-authenticate, then retrieve the OpenAPI JSON, then modify it in order to
-indicate that it requires authentication would have been onerous. Having looked
-at the Python generators for OpenAPI, I opted instead to use
 [datamodel-code-generator](https://github.com/koxudaxi/datamodel-code-generator)
-to generate [pydantic](https://docs.pydantic.dev/) models ([model.py](are_plugin/client/model.py))
-for the domain types, and to hand-write a client which accepts them.  The generated
-model file is significantly smaller than the OpenAPI specification, however
-will be needed to be updated whenever the webapp API changes.  It is generated like so:
+is used to generate [pydantic](https://docs.pydantic.dev/) models
+(see [model.py](are_plugin/client/model.py)) from the schemas in the webapp's OpenAPI
+JSON.  The resulting Python module is significantly smaller than the OpenAPI
+specification, however it'll updating whenever the webapp API changes.
+It's generated like so:
 
 ```sh
 $ datamodel-codegen --input openapi.json --output client/model.py
@@ -39,7 +33,7 @@ import the following Netskope GRC[^1] (ARE) classes:
  - `MappingType`
 
 If the `are` module is being evaluated within a Netskope instance, it will
-expose the versions of these classes from below `netskope.integrations.grc` ---
+expose the versions of these classes from below `netskope.integrations.grc` &mdash;
 otherwise, it'll provide versions from the `netskope_mock` package.
 
 [^1]: Netskope either uses GRC as an umbrella term for some of its products,
