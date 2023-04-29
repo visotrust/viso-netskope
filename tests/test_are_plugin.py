@@ -9,6 +9,7 @@ from requests import Response
 
 from are_plugin.main import CCLTag, VTPluginARE
 from are_plugin.netskope_model import Application
+from are_plugin.url import BASE_URL
 
 
 class Response(BaseModel):
@@ -38,7 +39,6 @@ app = Application(**app_args)
 config = {
     'token': string.ascii_lowercase,
     'email': 'admin@visotrust.com',
-    'url': 'http://localhost',
     'max_cci': 100,
 }
 
@@ -68,7 +68,7 @@ def post():
 def test_http(post):
     VTPluginARE(config=config).push([app], None)
 
-    assert post.call_args.args[0] == f'{config["url"]}/api/v1/relationships'
+    assert post.call_args.args[0] == f'{BASE_URL}/api/v1/relationships'
     args = post.call_args.kwargs
     assert args['headers']['Authorization'] == f'Bearer {string.ascii_lowercase}'
     j = json.loads(args['data'])
