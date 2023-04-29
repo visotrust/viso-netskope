@@ -38,3 +38,20 @@ otherwise, it'll provide versions from the `netskope_mock` package.
 
 [^1]: Netskope either uses GRC as an umbrella term for some of its products,
     including ARE, or, more likely, used to refer to the ARE product as GRC.
+
+## Tests
+
+### Unit Tests
+
+```bash
+$ poetry run pytest tests
+
+```
+
+### Integration Tests
+
+ - `VISOTRUST_EMAIL` defaults to `admin@visotrust.com`
+
+```bash
+$ VISOTRUST_URL=... VISOTRUST_TOKEN=... poetry run pytest integration
+```
