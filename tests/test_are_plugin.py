@@ -101,35 +101,3 @@ def test_http_cci(post):
     )
 
     assert not post.called
-
-
-def test_http_include(post):
-    VTPluginARE(config=config | {'include_cats': 'Homeopathy'}).push(
-        [Application(**app_args)], None
-    )
-
-    assert not post.called
-
-
-def test_http_include_pos(post):
-    VTPluginARE(config=config | {'include_cats': 'Homeopathy'}).push(
-        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None
-    )
-
-    assert post.called
-
-
-def test_http_exclude(post):
-    VTPluginARE(config=config | {'exclude_cats': 'Homeopathy'}).push(
-        [Application(**(app_args | {'categoryName': 'Homeopathy'}))], None
-    )
-
-    assert not post.called
-
-
-def test_http_exclude_pos(post):
-    VTPluginARE(config=config | {'exclude_cats': 'Homeopathy'}).push(
-        [Application(**app_args)], None
-    )
-
-    assert post.called

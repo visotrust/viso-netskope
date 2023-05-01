@@ -8,7 +8,7 @@ if sys.modules.get('netskope'):
 from concurrent.futures import Future, as_completed
 from itertools import chain, groupby
 from operator import attrgetter
-from typing import Any, Callable, Iterable, Mapping, Optional
+from typing import Any, Iterable, Mapping, Optional
 
 import requests
 from requests_futures.sessions import FuturesSession  # type: ignore
@@ -75,36 +75,6 @@ def cci_to_ccl(cci: Optional[float]) -> CCLTag:
     return CCLTag.EXCELLENT
 
 
-def cats_to_set(s: Optional[str]) -> Optional[set[str]]:
-    if not s:
-        return None
-    s = s.strip()
-    if not s:
-        return None
-    return {c.strip() for c in s.split(',')}
-
-
-def build_keepfn(config: Mapping[str, Any]) -> Callable[[Application], bool]:
-    incl = cats_to_set(config.get('include_cats'))
-    excl = cats_to_set(config.get('exclude_cats'))
-    if incl:
-
-        def _(app):
-            return app.categoryName in incl
-
-    elif excl:
-
-        def _(app):
-            return app.categoryName not in excl
-
-    else:
-
-        def _(_):
-            return True
-
-    return _
-
-
 class VTPluginARE(PluginBase):
     def request_args(self, config):
         args = {}
@@ -130,14 +100,13 @@ class VTPluginARE(PluginBase):
 
     def push(self, apps: Iterable[Application], _) -> PushResult:
         apps = sorted((x for x in apps if x.vendor), key=attrgetter('vendor'))
-        keepfn = build_keepfn(self.configuration)
         vendors = count = pushes = 0
 
         with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
             futures = {}
             for (vendor, apps) in groupby(apps, attrgetter('vendor')):
                 app = next(apps)
-                (count, cci) = vendor_cci(a for a in chain([app], apps) if keepfn(a))
+                (count, cci) = vendor_cci(chain([app], apps))
 
                 if count == 0 or self.configuration.get('max_cci', 100) < (cci or 0):
                     continue
@@ -182,13 +151,6 @@ class VTPluginARE(PluginBase):
 
     def validate(self, config: Mapping[str, Any]) -> ValidationResult:
         try:
-            incl = config.get('include_cats')
-            excl = config.get('exclude_cats')
-            if incl and excl:
-                return ValidationResult(
-                    success=False,
-                    message="Can't specify categories to include AND exclude.",
-                )
             token = config.get('token', '')
             email = config.get('email', '')
             if not (token and email):
