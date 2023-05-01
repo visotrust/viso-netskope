@@ -31,6 +31,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: viso-netskope.tar.gz
+          release_name: ${{ steps.export.outputs.VERSION_NAME }}
           tag: ${{ steps.export.outputs.VERSION_NAME }}
           body: |
             ${{ steps.notes.outputs.RELEASE_NOTES }}
