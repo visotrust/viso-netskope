@@ -30,7 +30,7 @@ jobs:
       - name: Upload tarball to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: are-plugin/viso-netskope.tar.gz
+          file: viso-netskope.tar.gz
           tag: ${{ steps.export.outputs.VERSION_NAME }}
           body: |
             ${{ steps.notes.outputs.RELEASE_NOTES }}
