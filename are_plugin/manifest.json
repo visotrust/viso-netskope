@@ -19,7 +19,7 @@
             "type": "password",
             "default": "",
             "mandatory": true,
-            "description": "VISO TRUE API Token."
+            "description": "VISO TRUST API Token."
         }
     ]
 }

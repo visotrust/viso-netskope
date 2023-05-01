@@ -48,3 +48,27 @@ The final configuration
 screen is a little confusing.  It appears _all_ ARE plugins are required to define
 at least one mapping.  Whatever you select will have no influence on how the plugin
 operates &mdash; just select the first item from both lists.
+
+## Netskope Configuration
+
+To route events to the VISO TRUST plugin, your instance will require a *Business Rule*,
+and a *Sharing Configuration*.  Netskope ships with a default business rule which
+includes all ARE events, though you may refine the set of events which are
+shared with the plugin.
+
+![Create Business Rule](static/create-business-rule.png "Create Business Rule")
+
+Finally, a sharing configuration is used to connect an instance of Netskope's
+Application Risk Exchange plugin (i.e. a tenant relationship) to the VISO TRUST ARE plugin,
+via a business rule.
+
+
+![Create Sharing Config](static/create-sharing-config.png "Create Sharing Config")
+
+The *source* will be the name you supplied to the Netskope ARE plugin when you
+connected your tenant, and the destination the name you supplied for the VISO
+TRUST ARE plugin configuration.  Once this is set up, you can force a sync using
+the cycle icon on the right hand side of the *Sharing* screen, on the row corresponding
+to the relevant sharing config.
+
+![Share Existing](static/share-existing.png "Share Existing")
