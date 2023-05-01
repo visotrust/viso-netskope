@@ -1,3 +1,5 @@
 import importlib.metadata
+import sys
 
-__version__ = importlib.metadata.version(__package__ or __name__)
+if not sys.modules.get('netskope'):
+    __version__ = importlib.metadata.version(__package__ or __name__)
