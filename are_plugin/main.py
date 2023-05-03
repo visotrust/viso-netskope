@@ -21,7 +21,7 @@ from .are import (
     ValidationResult,
 )
 from .client import util
-from .client.model import RelationshipCreateUpdateInput
+from .client.model import RelationshipCreateUpdateInput, TagsCreateInput
 from .proto import Application
 from .url import BASE_URL
 
@@ -156,16 +156,30 @@ class VTPluginARE(PluginBase):
             if not (token and email):
                 raise ValueError('Missing keys.')
 
-            url = f'{BASE_URL}/api/v1/relationships'
+            url = f'{BASE_URL}/api/v1/tags'
             self.logger.info(f'Validating against url {BASE_URL}.')
-            resp = requests.options(
+            resp = requests.post(
                 url,
-                headers={'Authorization': f"Bearer {token}"},
+                data=TagsCreateInput(
+                    tags=[
+                        CCLTag.UNKNOWN,
+                        CCLTag.POOR,
+                        CCLTag.LOW,
+                        CCLTag.MEDIUM,
+                        CCLTag.HIGH,
+                        CCLTag.EXCELLENT,
+                    ]
+                ).json(),
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
                 **self.request_args(config),
             )
             self.logger.info(f'{url} = {resp.status_code}.')
             if 200 <= resp.status_code <= 299:
                 return ValidationResult(success=True, message='Validation complete.')
+            self.logger.info(f'Response code {resp.status_code}')
             return ValidationResult(
                 success=False, message=f'Response code {resp.status_code}.'
             )

@@ -1,3 +1,7 @@
+# 0.3.0
+
+Upfront tag creation.
+
 # 0.2.0
 
 Removal of the configurable URL parameter, misc. trivial fixes.
