@@ -1,3 +1,7 @@
+# 0.3.1
+
+Simplify Pydantic usage
+
 # 0.3.0
 
 Upfront tag creation.
