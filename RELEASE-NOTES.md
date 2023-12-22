@@ -1,3 +1,7 @@
+# 0.3.2
+
+Bump plugin version.
+
 # 0.3.1
 
 Simplify Pydantic usage
