@@ -2,13 +2,15 @@
 #   filename:  schema.json
 #   timestamp: 2023-05-03T15:15:47+00:00
 
+# manually edited
+
 from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel
 
 
 class ContextType(BaseModel):
@@ -22,14 +24,12 @@ class DataType(BaseModel):
 class RelationshipCreateUpdateInput(BaseModel):
     id: Optional[int] = None
     name: str
-    homepage: constr(
-        regex=r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(?!(.*www\.){1})[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})|'
-    )
+    homepage: str
     description: Optional[str] = None
-    contextTypes: Optional[List[ContextType]] = Field(None, unique_items=True)
-    dataTypes: Optional[List[DataType]] = Field(None, unique_items=True)
+    contextTypes: Optional[List[ContextType]] = None
+    dataTypes: Optional[List[DataType]] = None
     businessOwnerEmail: str
-    tags: Optional[List[str]] = Field(None, unique_items=True)
+    tags: Optional[List[str]] = None
 
 
 class Status(Enum):
@@ -92,9 +92,7 @@ class TagsCreateInput(BaseModel):
 
 class Assessment(BaseModel):
     status: Optional[Status] = None
-    statusHistories: Optional[List[AssessmentStatusHistory]] = Field(
-        None, unique_items=True
-    )
+    statusHistories: Optional[List[AssessmentStatusHistory]] = None
     completedDate: Optional[datetime] = None
     updatedDate: Optional[datetime] = None
     phaseDate: Optional[datetime] = None
@@ -124,7 +122,7 @@ class Relationship(BaseModel):
     name: str
     id: Optional[int] = None
     status: Optional[Status2] = None
-    tags: Optional[List[str]] = Field(None, unique_items=True)
+    tags: Optional[List[str]] = None
     primaryContact: Optional[PrimaryContact] = None
     recertificationType: Optional[RecertificationType] = None
     description: Optional[str] = None
@@ -137,13 +135,13 @@ class Relationship(BaseModel):
                 RecertificationAssessment,
             ]
         ]
-    ] = Field(None, unique_items=True)
+    ] = None
     updatedDate: Optional[datetime] = None
     residualRisk: Optional[ResidualRisk] = None
-    subscribers: Optional[List[VisoUser]] = Field(None, unique_items=True)
+    subscribers: Optional[List[VisoUser]] = None
     homepage: Optional[str] = None
-    dataTypes: Optional[List[DataType]] = Field(None, unique_items=True)
-    contextTypes: Optional[List[ContextType]] = Field(None, unique_items=True)
+    dataTypes: Optional[List[DataType]] = None
+    contextTypes: Optional[List[ContextType]] = None
     potentialRisk: Optional[PotentialRisk] = None
     createdDate: Optional[datetime] = None
     businessOwner: Optional[VisoUser] = None
