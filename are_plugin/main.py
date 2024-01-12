@@ -5,13 +5,16 @@ import sys
 if sys.modules.get('netskope'):
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
-from concurrent.futures import Future, as_completed
+from tldextract import TLDExtract
+
+tldextract = TLDExtract(suffix_list_urls=())
+
+
 from itertools import chain, groupby
 from operator import attrgetter
 from typing import Any, Iterable, Mapping, Optional
 
 import requests
-from requests_futures.sessions import FuturesSession  # type: ignore
 
 from .are import (
     MappingType,
@@ -20,8 +23,11 @@ from .are import (
     TargetMappingFields,
     ValidationResult,
 )
-from .client import util
-from .client.model import RelationshipCreateUpdateInput, TagsCreateInput
+from .client.model import (
+    PublicRelationshipSearchInput,
+    RelationshipCreateUpdateInput,
+    TagsCreateInput,
+)
 from .proto import Application
 from .url import BASE_URL
 
@@ -37,14 +43,14 @@ class CCLTag(str, enum.Enum):
     EXCELLENT = 'CCI Excellent'
 
 
-def app_domain(app: Application) -> str:
+def app_domain(app: Application) -> Optional[str]:
     try:
         return app.steeringDomains[0]
     except IndexError:
         try:
             return app.discoveryDomains[0]
         except IndexError:
-            return 'unknown.tld'
+            return None
 
 
 def vendor_cci(apps: Iterable[Application]) -> tuple[int, Optional[float]]:
@@ -85,16 +91,50 @@ class VTPluginARE(PluginBase):
             )
         return args
 
-    def post(
-        self, session: FuturesSession, token: str, create: RelationshipCreateUpdateInput
-    ) -> Future:
-        return session.post(
+    def post(self, token: str, create: RelationshipCreateUpdateInput, hosts: set[str]):
+        existing = requests.get(
+            f"{BASE_URL}/api/v1/relationships/search",
+            headers={
+                'Authorization': f"Bearer {token}",
+                'Content-Type': 'application/json',
+            },
+            data=PublicRelationshipSearchInput(
+                name=create.name, domains=list(hosts)
+            ).json(),
+            **self.request_args(self.configuration),
+        )
+        matches = list(
+            sorted(
+                existing.json(),
+                key=lambda m: len([t for t in m['tags'] if t.startswith('CCI')]),
+                reverse=True,
+            )
+        )
+        self.logger.info(f'{create.name} {create.homepage} {hosts} = {len(matches)}')
+        if not matches:
+            if create.homepage is None:
+                return existing
+            return requests.post(
+                f"{BASE_URL}/api/v1/relationships",
+                headers={
+                    'Authorization': f"Bearer {token}",
+                    'Content-Type': 'application/json',
+                },
+                data=create.json(),
+                **self.request_args(self.configuration),
+            )
+        if create.tags and set(create.tags) <= set(matches[0]['tags']):
+            return existing
+
+        return requests.patch(
             f"{BASE_URL}/api/v1/relationships",
             headers={
                 'Authorization': f"Bearer {token}",
                 'Content-Type': 'application/json',
             },
-            data=create.json(),
+            data=RelationshipCreateUpdateInput(
+                id=matches[0]['id'], tags=create.tags
+            ).json(),
             **self.request_args(self.configuration),
         )
 
@@ -102,39 +142,40 @@ class VTPluginARE(PluginBase):
         apps = sorted((x for x in apps if x.vendor), key=attrgetter('vendor'))
         vendors = count = pushes = 0
 
-        with util.new_futures_session(VISOTRUST_CONCURRENT) as session:
-            futures = {}
-            for (vendor, apps) in groupby(apps, attrgetter('vendor')):
-                app = next(apps)
-                (count, cci) = vendor_cci(chain([app], apps))
+        for (vendor, apps) in groupby(apps, attrgetter('vendor')):
+            app = next(apps)
+            (count, cci) = vendor_cci(chain([app], apps))
 
-                if count == 0 or self.configuration.get('max_cci', 100) < (cci or 0):
-                    continue
+            if count == 0 or self.configuration.get('max_cci', 100) < (cci or 0):
+                continue
 
-                vendors += 1
-                ccl = cci_to_ccl(cci)
-                domain = app_domain(app)
+            vendors += 1
+            ccl = cci_to_ccl(cci)
+            domain = app_domain(app)
 
-                create = RelationshipCreateUpdateInput(
-                    name=vendor,
-                    homepage=f'https://{domain}',
-                    tags=[ccl],
-                    businessOwnerEmail=self.configuration["email"],
+            if domain:
+                domain = 'https://' + tldextract(domain).registered_domain
+
+            create = RelationshipCreateUpdateInput(
+                name=vendor,
+                homepage=domain,
+                tags=[ccl],
+                businessOwnerEmail=self.configuration["email"],
+            )
+
+            hosts = set()
+            for domain in set(app.steeringDomains) | set(app.discoveryDomains):
+                hosts.add(tldextract(domain).registered_domain)
+
+            self.logger.info(f'Request JSON: {create.json()}')
+            resp = self.post(self.configuration['token'], create, hosts)
+
+            if 200 <= resp.status_code <= 299:
+                pushes += 1
+            else:
+                self.logger.info(
+                    f'Response code {resp.status_code} for vendor "{vendor}".'
                 )
-
-                self.logger.info(f'Request JSON: {create.json()}')
-                future = self.post(session, self.configuration['token'], create)
-                futures[future] = vendor
-
-            for f in as_completed(futures):
-                resp = f.result()
-                if 200 <= resp.status_code <= 299:
-                    pushes += 1
-                else:
-                    self.logger.info(
-                        f'Response code {resp.status_code} for vendor "{futures[f]}".'
-                    )
-                    self.logger.info(f'Response: {resp.json()}.')
 
         return PushResult(
             success=vendors == pushes, message=f'Completed {pushes}/{vendors} pushes.'

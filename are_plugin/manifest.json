@@ -1,7 +1,7 @@
 {
     "name": "VISO TRUST ARE",
     "id": "are_plugin",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "patch_supported": true,
     "description": "This plugin creates vendor relationships in VISO TRUST.",
     "configuration": [

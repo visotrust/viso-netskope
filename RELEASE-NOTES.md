@@ -1,3 +1,7 @@
+# 0.3.3
+
+Use new search and PATCH endpoints.
+
 # 0.3.2
 
 Bump plugin version.
