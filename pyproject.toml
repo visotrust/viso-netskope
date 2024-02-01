@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "are_plugin"
-version = "0.3.2"
+version = "0.3.3"
 description = ""
 authors = ["Moe A <moe.aboulkheir@visotrust.com>"]
 
 [tool.poetry.group.main.dependencies]
-python = ">=3.9"
-requests-futures = "^1.0.0"
+python = ">=3.10,<3.11"
 typing-extensions = "^4.5.0"
+tldextract = "^5.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "6.2.5"

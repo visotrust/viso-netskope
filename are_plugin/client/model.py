@@ -13,6 +13,11 @@ from typing import List, Optional, Union
 from pydantic import BaseModel
 
 
+class PublicRelationshipSearchInput(BaseModel):
+    name: str
+    domains: list[str]
+
+
 class ContextType(BaseModel):
     name: Optional[str] = None
 
@@ -23,12 +28,12 @@ class DataType(BaseModel):
 
 class RelationshipCreateUpdateInput(BaseModel):
     id: Optional[int] = None
-    name: str
-    homepage: str
+    name: Optional[str] = None
+    homepage: Optional[str] = None
     description: Optional[str] = None
     contextTypes: Optional[List[ContextType]] = None
     dataTypes: Optional[List[DataType]] = None
-    businessOwnerEmail: str
+    businessOwnerEmail: Optional[str] = None
     tags: Optional[List[str]] = None
 
 
